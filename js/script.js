@@ -37,17 +37,56 @@ const displayPopularMovies = async () => {
     document.querySelector('#popular-movies').appendChild(div);
   });
 };
+const displayPopularShows = async () => {
+  // fetching popular movie prop endpoint
+  const { results } = await fetchAPIData('tv/popular');
+  results.forEach((show) => {
+    const div = document.createElement('div');
+    div.classList.add('card');
+    // If movie has image, show it, else show default no image
+    div.innerHTML = `
+    <div>
+          <a href="movie-details.html?id=${show.id}">
+            ${
+              show.poster_path
+                ? `<img
+              src="https://image.tmdb.org/t/p/w500${show.poster_path}"
+              class="card-img-top"
+              alt="${show.name}"
+            />`
+                : `<img
+              src="../images/no-image.jpg"
+              class="card-img-top"
+              alt="${show.name}"
+            />`
+            }
+          </a>
+          <div class="card-body">
+            <h5 class="card-title">${show.name}</h5>
+            <p class="card-text">
+              <small class="text-muted">Date: ${show.first_air_date}</small>
+            </p>
+          </div>
+        </div>`;
+
+    document.querySelector('#popular-shows').appendChild(div);
+  });
+};
 
 // Fetch data from TMDB API
 const fetchAPIData = async (endpoint) => {
   const API_KEY = '38ca880edab85fd1b68b2391d7937ed0';
   const API_URL = 'https://api.themoviedb.org/3/';
 
+  showSpinner();
+
   const response = await fetch(
     `${API_URL}${endpoint}?api_key=${API_KEY}&language=en-US`
   );
 
   const data = await response.json();
+
+  hideSpinner();
 
   return data;
 };
@@ -64,6 +103,14 @@ const highlightActiveLink = () => {
   });
 };
 
+const showSpinner = () => {
+  document.querySelector('.spinner').classList.add('show');
+};
+
+const hideSpinner = () => {
+  document.querySelector('.spinner').classList.remove('show');
+};
+
 // Init app
 const init = () => {
   // Router funcs for vanilla JS
@@ -73,7 +120,7 @@ const init = () => {
       displayPopularMovies();
       break;
     case '/shows.html':
-      console.log('Shows');
+      displayPopularShows();
       break;
     case '/movie-details.html':
       console.log('Movie Details');
